@@ -6,24 +6,33 @@ import requests_cache
 from dotenv import load_dotenv
 
 load_dotenv()
-PRICE_CHANGE_THRESHOLD = 4.00
-CACHE_EXPIRY_MINS = 10
-NEWS_COUNT = 3
-requests_cache.install_cache("app_cache",expire_after=CACHE_EXPIRY_MINS*60)
+
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla"
+PRICE_CHANGE_THRESHOLD = 4.00
+
+
+NEWS_COUNT = 3
+
+
+CACHE_EXPIRY_MINS = 10
+requests_cache.install_cache("app_cache",expire_after=CACHE_EXPIRY_MINS*60)
 
 
 ALPHA_ENDPOINT = "https://www.alphavantage.co/query"
 ALPHA_API_KEY = os.environ["ALPHA_API_KEY"]
 
+
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 NEWS_API_KEY = os.environ["NEWS_API_KEY"]
+
 
 TELEGRAM_BOT_TOKEN = os.environ["BOT_ID"]
 TELEGRAM_CHAT_TOKEN = os.environ["CHAT_ID"]
 TELEGRAM_ENDPOINT = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
+
 def get_stock_prices():
     parameters = {
         "function":"TIME_SERIES_DAILY",
@@ -44,6 +53,7 @@ def get_stock_prices():
     percent_change = round(abs(price_change)/previous_close * 100,2)
     return percent_change,is_increase
 
+
 def get_news():
     parameters = {
         "apiKey":NEWS_API_KEY,
@@ -62,7 +72,6 @@ def get_news():
     return titles,descriptions
 
 
-
 def send_telegram_messages(titles,descriptions,is_increase,percent_change):
     indicator = "🔺" if is_increase else "🔻"
     for index in range(NEWS_COUNT):
@@ -76,6 +85,9 @@ def send_telegram_messages(titles,descriptions,is_increase,percent_change):
         )
         response.raise_for_status()
         print("Message Successfully Sent!")
+
+
+
 
 if __name__ == "__main__":
     percent_change,is_increase = get_stock_prices()
