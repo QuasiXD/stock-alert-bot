@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-STOCK = "TSLA"
-COMPANY_NAME = "Tesla"
+STOCK = "PLTR"
+COMPANY_NAME = "Palantir"
 PRICE_CHANGE_THRESHOLD = 4.00
 
 
@@ -56,14 +56,16 @@ def get_stock_prices():
 
 def get_news():
     parameters = {
-        "apiKey":NEWS_API_KEY,
         "q":COMPANY_NAME,
         "pageSize":NEWS_COUNT,
         "language":"en",
         "sortBy":"publishedAt",
         "searchIn":"title"
     }
-    response = requests.get(url=NEWS_ENDPOINT,params=parameters)
+    headers = {
+        "X-Api-Key":NEWS_API_KEY,
+    }
+    response = requests.get(url=NEWS_ENDPOINT,params=parameters,headers=headers)
     response.raise_for_status()
     data = response.json()
     articles = data["articles"]
@@ -74,7 +76,8 @@ def get_news():
 
 def send_telegram_messages(titles,descriptions,is_increase,percent_change):
     indicator = "🔺" if is_increase else "🔻"
-    for index in range(NEWS_COUNT):
+    iterator = min(len(titles),NEWS_COUNT,len(descriptions))
+    for index in range(iterator):
         title = titles[index]
         description = descriptions[index]
         response = requests.post(url=TELEGRAM_ENDPOINT,data={
